@@ -15,4 +15,5 @@ pipfile.lock
 .DS_Store
 Thumbs.db
 
-/data/config.ini
+/data/
+playground/

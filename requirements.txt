@@ -1,0 +1,8 @@
+pyautogui
+pywin32
+opencv-python
+paddlepaddle-gpu
+paddleocr
+requests
+setuptools
+pynput
