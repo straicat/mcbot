@@ -48,10 +48,13 @@ class Region:
         absorb_option1 = [1803, 711, 1860, 743]  # 第1个选项是吸收，第2个选项是领取奖励
         absorb_option2 = [1803, 801, 1860, 831]  # 第2个选项是吸收，第1个选项是领取奖励
 
-        # F键图标出现范围
-        f_select_key = [1664, 714, 1701, 839]
+        # 在吸收/领取奖励时，F键图标出现范围
+        f_absorb_key = [1664, 714, 1701, 839]
         # F键指示的选项列表中前2个文字的范围
-        f_select_options_text = [1803, 714, 1860, 831]
+        f_absorb_options_text = [1803, 714, 1860, 831]
+
+        # 在副本门口，F键图标出现范围
+        f_dungeon_key = [1665, 771, 1697, 806]
 
         # 存在领取奖励与吸收选项时，f键位置可能有2种
         f_select_key1 = [1676, 720, 1688, 740]  # 第1个选项位置
@@ -72,6 +75,9 @@ class Region:
         get_reward_popup_title = [600, 504, 642, 546]
         # 补充结晶波片弹窗标题的“补”字
         supply_vigor_popup_title = [492, 315, 530, 353]
+
+        # 副本选择等级界面，推荐等级前小图片搜索范围
+        dungeon_level_icon_search = [186, 258, 270, 459]
 
 
 class Position:
@@ -96,6 +102,12 @@ class Position:
         # 游戏界面边缘安全的空白点击位置
         blank_click = [2550, 63]
 
+        # TBD: 后续改为OCR
+        # 进入副本时单人挑战按钮，以及编队界面的开启挑战
+        dungeon_challenge_btn = [2262, 1356]
+        # 进入副本时提示结晶波片不足，确认进入
+        dungeon_popup_confirm = [1653, 942]
+
 
 class Range:
     if preset == "win_2560_1440":
@@ -118,6 +130,14 @@ class PosColor:
         # 注意：当有其它任务时，击败BOSS的任务会在下面的位置
         defeat_boss_icon1 = [[54, 450], [148, 140, 244]]
         defeat_boss_icon2 = [[54, 648], [148, 140, 244]]
+
+        # 战歌重奏命定的纷争，各推荐等级选中时的取点与颜色
+        dungeon_level40 = [[500, 300], [227, 227, 227]]
+        dungeon_level50 = [[500, 411], [227, 227, 227]]
+        dungeon_level60 = [[500, 524], [227, 227, 227]]
+        dungeon_level70 = [[500, 635], [227, 227, 227]]
+        dungeon_level80 = [[500, 747], [227, 227, 227]]
+        dungeon_level90 = [[500, 858], [227, 227, 227]]
 
 
 if __name__ == '__main__':

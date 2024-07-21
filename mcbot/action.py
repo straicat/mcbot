@@ -67,6 +67,61 @@ class BaseAction:
         if self.scene.is_role_not_health():
             self.goto_core_beacon()
 
+    @log_exec
+    def absorb_echo(self, span_limit=4, span_val=3):
+        start_time = time.time()
+        logger.info("开始寻找声骸")
+        span = 0
+        cnt = 0
+        while True:
+            for direction in ["w", "d", "s", "a"]:
+                if cnt % 2 == 0:
+                    span += 1
+                cnt += 1
+                if span >= span_limit:
+                    logger.debug(f"寻找声骸耗时：{time.time() - start_time}s，结果：未找到")
+                    logger.info("没有找到声骸")
+                    return False
+                logger.debug(f"寻找声骸 跨度：{span}, 方向：{direction}")
+                pyautogui.keyDown(direction)
+                for _j in range(span * span_val):  # TBD: 采用超时判断，而不是固定时延，控制更精确
+                    if self.try_absorb(direction):
+                        logger.debug(f"寻找声骸耗时：{time.time() - start_time}s，结果：已找到")
+                        logger.info("已吸收声骸")
+                        sleep(3.5)
+                        return True
+                    pyautogui.keyDown(direction)
+                    sleep(0.1, 0)
+                pyautogui.keyUp(direction)
+
+    def try_absorb(self, key):
+        f_key = self.scene.find_f_absorb_key()
+        if f_key:
+            if key:
+                pyautogui.keyUp(key)
+            # 等待奔跑惯性
+            sleep(0.5)
+            region = self.scene.get_absorb_option_region()
+            if region:
+                pyautogui.keyDown("alt")
+                pyautogui.moveTo(*region_center(region), duration=0.1)
+                # 鼠标划过选项时，选项高亮切换动画
+                sleep(0.5)
+                pyautogui.click()
+                pyautogui.keyUp("alt")
+
+                # 这里误触发弹窗的问题需要多测测
+                if self.scene.use_vigor_popup():
+                    logger.debug("吸收声骸失误触发体力弹窗")
+                    pyautogui.keyUp("alt")
+                    pyautogui.press("esc")
+                    sleep(0.8)
+                    return False
+                return True
+        return False
+
+
+class BeaconTaskAction(BaseAction):
     def afterimage_explore(self, task: str):
         logger.info(f"残象探寻：{task}")
         sleep(0.5)
@@ -133,58 +188,58 @@ class BaseAction:
         else:
             sleep(1)
 
-    @log_exec
-    def absorb_echo(self):
+
+class DungeonTaskAction(BaseAction):
+    def wait_for_level_select_ui(self, timeout):
         start_time = time.time()
-        logger.info("开始寻找声骸")
-        span = 0
-        cnt = 0
+        logger.info("请进入副本，停留在副本等级选择界面")
         while True:
-            for direction in ["w", "d", "s", "a"]:
-                if cnt % 2 == 0:
-                    span += 1
-                cnt += 1
-                if span >= 4:
-                    logger.debug(f"寻找声骸耗时：{time.time() - start_time}s，结果：未找到")
-                    logger.info("没有找到声骸")
-                    return False
-                logger.debug(f"寻找声骸 跨度：{span}, 方向：{direction}")
-                pyautogui.keyDown(direction)
-                for _j in range(span * 3):  # TBD: 采用超时判断，而不是固定时延，控制更精确
-                    if self.try_absorb(direction):
-                        logger.debug(f"寻找声骸耗时：{time.time() - start_time}s，结果：已找到")
-                        logger.info("已吸收声骸")
-                        sleep(3.5)
-                        return True
-                    pyautogui.keyDown(direction)
-                    sleep(0.1, 0)
-                pyautogui.keyUp(direction)
-
-    def try_absorb(self, key):
-        f_key = self.scene.find_f_select_key()
-        if f_key:
-            if key:
-                pyautogui.keyUp(key)
-            # 等待奔跑惯性
-            sleep(0.5)
-            region = self.scene.get_absorb_option_region()
-            if region:
-                pyautogui.keyDown("alt")
-                pyautogui.moveTo(*region_center(region), duration=0.1)
-                # 鼠标划过选项时，选项高亮切换动画
-                sleep(0.5)
-                pyautogui.click()
-                pyautogui.keyUp("alt")
-
-                # 这里误触发弹窗的问题需要多测测
-                if self.scene.use_vigor_popup():
-                    logger.debug("吸收声骸失误触发体力弹窗")
-                    pyautogui.keyUp("alt")
-                    pyautogui.press("esc")
-                    sleep(0.8)
-                    return False
+            sleep(1)
+            if self.scene.is_dungeon_level_select_ui():
                 return True
-        return False
+            sleep(1)
+            if time.time() - start_time > timeout:
+                return False
+
+    def auto_prepare_dungeon_ready(self):
+        for _ in range(10):
+            if self.scene.find_f_dungeon_key():
+                logger.info("已达副本门口，进入副本")
+                pyautogui.press("f")
+                sleep(1)
+                return True
+            pyautogui.keyDown("s")
+            sleep(0.05)
+            pyautogui.keyUp("s")
+            sleep(0.5)
+
+    def enter_dungeon(self):
+        position = self.scene.get_proper_dungeon_level_position()
+        if position:
+            # 能正确点击合适等级的副本非常重要
+            for _ in range(2):
+                pyautogui.moveTo(*position, duration=0.2)
+                sleep(0.5)
+                pyautogui.mouseDown()
+                sleep(0.2)
+                pyautogui.mouseUp()
+                sleep(0.8)
+            click(Position.dungeon_challenge_btn)
+            sleep(1)
+            click(Position.dungeon_popup_confirm)
+            sleep(2)
+            click(Position.dungeon_challenge_btn)
+            self.wait_for_main_ui(1, 15)
+            return True
+        else:
+            raise UnexpectedUI(expect="副本选择等级")
+
+    def exit_dungeon(self):
+        sleep(1)
+        pyautogui.press("esc")
+        sleep(3)
+        click(Position.dungeon_popup_confirm)
+        sleep(3)
 
 
 class FightRes(Enum):

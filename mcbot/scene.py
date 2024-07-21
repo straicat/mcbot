@@ -59,12 +59,16 @@ class Scene:
         return self.smart.is_region_text(Region.revival_popup_title, "选择复苏物品")
 
     @log_exec
-    def find_f_select_key(self):
-        return self.smart.find_region_image(Region.f_select_key, self._res("F键.png"))
+    def find_f_absorb_key(self):
+        return self.smart.find_region_image(Region.f_absorb_key, self._res("F键.png"))
+
+    @log_exec
+    def find_f_dungeon_key(self):
+        return self.smart.find_region_image(Region.f_dungeon_key, self._res("F键.png"))
 
     @log_exec
     def get_absorb_option_region(self):
-        for ret in self.smart.ocr_region(Region.f_select_options_text):
+        for ret in self.smart.ocr_region(Region.f_absorb_options_text):
             if ret.text == "吸收" and ret.score >= 0.9:
                 return ret.region
 
@@ -88,6 +92,16 @@ class Scene:
         if self.smart.is_pos_color(PosColor.role3_not_health, tolerance):
             return True
         return False
+
+    def is_dungeon_level_select_ui(self):
+        return bool(self.smart.find_region_image(Region.dungeon_level_icon_search, self._res("副本等级.png")))
+
+    def get_proper_dungeon_level_position(self):
+        levels = [PosColor.dungeon_level90, PosColor.dungeon_level80, PosColor.dungeon_level70, PosColor.dungeon_level60, PosColor.dungeon_level50, PosColor.dungeon_level40]
+        proper = [PosColor.dungeon_level70, PosColor.dungeon_level60, PosColor.dungeon_level50, PosColor.dungeon_level40, PosColor.dungeon_level40, PosColor.dungeon_level40]
+        for i, level in enumerate(levels):
+            if self.smart.is_pos_color(level):
+                return proper[i][0]
 
 
 def test():
