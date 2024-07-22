@@ -92,4 +92,6 @@ class Smart:
     @staticmethod
     def is_pos_color(pos_color: List[List[int]], tolerance=10):
         # noinspection PyUnresolvedReferences
-        return pyautogui.pixelMatchesColor(*pos_color[0], pos_color[1], tolerance=tolerance)
+        res = pyautogui.pixelMatchesColor(*pos_color[0], pos_color[1], tolerance=tolerance)
+        logger.debug(f"is_pos_color pos_color:{pos_color}, tolerance:{tolerance}, res:{res}")
+        return res

@@ -79,6 +79,9 @@ class Region:
         # 副本选择等级界面，推荐等级前小图片搜索范围
         dungeon_level_icon_search = [186, 258, 270, 459]
 
+        # 副本确认离开
+        dungeon_confirm_exit_text = [1202, 717, 1358, 756]
+
 
 class Position:
     if preset == "win_2560_1440":

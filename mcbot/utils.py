@@ -133,9 +133,12 @@ def screenshot():
     img_path.parent.mkdir(parents=True, exist_ok=True)
     im = ImageGrab.grab()
     im.save(img_path)
-    print(img_path)
     logger.debug(f"save screenshot: {img_path}")
 
 
+def test():
+    pass
+
+
 if __name__ == '__main__':
-    init_game_window()
+    test()

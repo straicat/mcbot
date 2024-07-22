@@ -27,6 +27,9 @@ class BaseAction:
         self.scene = Scene()
         self.smart = Smart()
 
+    def set_task(self, task):
+        self.scene.task = task
+
     def try_return_main_ui(self, timeout):
         start = time.time()
         if self.scene.is_main_ui():
@@ -217,13 +220,13 @@ class DungeonTaskAction(BaseAction):
         position = self.scene.get_proper_dungeon_level_position()
         if position:
             # 能正确点击合适等级的副本非常重要
-            for _ in range(2):
+            for _ in range(3):
                 pyautogui.moveTo(*position, duration=0.2)
-                sleep(0.5)
+                sleep(0.3)
                 pyautogui.mouseDown()
                 sleep(0.2)
                 pyautogui.mouseUp()
-                sleep(0.8)
+                sleep(0.3)
             click(Position.dungeon_challenge_btn)
             sleep(1)
             click(Position.dungeon_popup_confirm)
@@ -235,11 +238,25 @@ class DungeonTaskAction(BaseAction):
             raise UnexpectedUI(expect="副本选择等级")
 
     def exit_dungeon(self):
-        sleep(1)
-        pyautogui.press("esc")
-        sleep(3)
-        click(Position.dungeon_popup_confirm)
-        sleep(3)
+        for _ in range(3):
+            sleep(0.5)
+            pyautogui.keyDown("esc")
+            sleep(0.2)
+            pyautogui.keyUp("esc")
+            sleep(0.5)
+            if self.scene.is_dungeon_confirm_exit():
+                break
+        for _ in range(3):
+            if self.scene.is_dungeon_confirm_exit():
+                pyautogui.moveTo(*Position.dungeon_popup_confirm)
+                sleep(0.3)
+                pyautogui.mouseDown()
+                sleep(0.2)
+                pyautogui.mouseUp()
+                sleep(1)
+                if self.wait_for_main_ui(1, 15):
+                    return True
+        return False
 
 
 class FightRes(Enum):
@@ -273,7 +290,6 @@ class FightAction(BaseAction):
                     fight_res = FightRes.TIMEOUT
                     logger.info(f"战斗已超时，时限：{self.max_fight_duration}s")
                     return
-                logger.debug(f"current action: {action}")
                 if time.time() - start_time > self.min_fight_duration and self.scene.is_boss_defeated():
                     if self.scene.is_boss_defeated():  # 双重检测
                         boss_defeated = True

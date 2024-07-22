@@ -56,6 +56,7 @@ class Main:
         start_time = time.time()
         while True:
             task = self.task_list[task_index]
+            self.action.set_task(task)
             used_time = int((time.time() - start_time) / 60)
             progress = f"第 {epoch} 轮，当前任务：{task}，已吸收声骸：{echo_num}，已执行 {used_time} 分钟"
             logger.debug(progress)
@@ -65,7 +66,7 @@ class Main:
             try:
                 fight_res = FightRes.NOT_OVER
                 if task == "角":
-                    span_limit, span_val = 4, 8
+                    span_limit, span_val = 6, 4
                 if isinstance(self.action, DungeonTaskAction):
                     if epoch == 1:
                         if not self.action.wait_for_level_select_ui(120):
@@ -108,6 +109,7 @@ class Main:
                 else:
                     raise ValueError(f"error fight_res: {fight_res}")
             except UnexpectedUI as e:
+                # TBD 尝试返回主界面对于角不适用
                 logger.error(f"遇到了非预期界面，尝试返回主界面。预期界面：{e.expect}")
                 logger.debug(f"{e}", exc_info=True)
                 screenshot()
@@ -123,7 +125,8 @@ class Main:
                     task_retry_times = 0
             else:
                 # 如果血量不健康就回血
-                self.action.goto_core_beacon_if_not_health()
+                if task not in self.dungeon_boss_list:
+                    self.action.goto_core_beacon_if_not_health()
                 # 切到下一个任务
                 task_index = (task_index + 1) % len(self.task_list)
                 epoch += task_index == 0

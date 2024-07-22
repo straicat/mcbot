@@ -17,6 +17,7 @@ class Scene:
     def __init__(self):
         self.smart = Smart()
         self.res_path = Path(__file__).parent / "res" / get_config().get("preset", "win_2560_1440")
+        self.task = ""
 
     @functools.lru_cache
     def _res(self, name):
@@ -46,8 +47,9 @@ class Scene:
         if not self.is_main_ui():
             return False
         # 最后再检查下击败BOSS任务图标
-        if self.smart.is_pos_color(PosColor.defeat_boss_icon1) or self.smart.is_pos_color(PosColor.defeat_boss_icon2):
-            return False
+        if self.task != "角":
+            if self.smart.is_pos_color(PosColor.defeat_boss_icon1) or self.smart.is_pos_color(PosColor.defeat_boss_icon2):
+                return False
         return True
 
     @log_exec
@@ -102,6 +104,9 @@ class Scene:
         for i, level in enumerate(levels):
             if self.smart.is_pos_color(level):
                 return proper[i][0]
+
+    def is_dungeon_confirm_exit(self):
+        return self.smart.is_region_text(Region.dungeon_confirm_exit_text, "确认离开")
 
 
 def test():
