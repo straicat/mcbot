@@ -19,7 +19,7 @@ class Main:
         self.action: Optional[BaseAction] = None
         self.fight: Optional[FightAction] = None
         self.task_list = []
-        self.dungeon_boss_list = ["角"]
+        self.dungeon_boss_list = ["角", "无冠者"]
 
     def main(self):
         try:
@@ -67,6 +67,8 @@ class Main:
                 fight_res = FightRes.NOT_OVER
                 if task == "角":
                     span_limit, span_val = 6, 4
+                elif task == "无冠者":
+                    span_limit, span_val = 6, 3
                 if isinstance(self.action, DungeonTaskAction):
                     if epoch == 1:
                         if not self.action.wait_for_level_select_ui(120):

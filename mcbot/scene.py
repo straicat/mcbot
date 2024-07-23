@@ -47,7 +47,9 @@ class Scene:
         if not self.is_main_ui():
             return False
         # 最后再检查下击败BOSS任务图标
-        if self.task != "角":
+        if self.task in ["角", "无冠者"]:
+            return self.smart.is_region_text(Region.dungeon_exit_text, "离开")
+        else:
             if self.smart.is_pos_color(PosColor.defeat_boss_icon1) or self.smart.is_pos_color(PosColor.defeat_boss_icon2):
                 return False
         return True
@@ -110,7 +112,7 @@ class Scene:
 
 
 def test():
-    test_image = r""
+    test_image = r"D:\Pictures\鸣潮\角\20240722-131343-762136.png"
 
     def mock_grab(region):
         im = Image.open(test_image)
@@ -120,9 +122,10 @@ def test():
 
     set_logger(0, logging.DEBUG)
     s = Scene()
+    s.task = "无冠者"
     for _ in range(3):
         ImageGrab.grab = mock_grab
-        logger.info(s.get_absorb_option_region())
+        logger.info(s.is_boss_defeated())
 
 
 if __name__ == '__main__':

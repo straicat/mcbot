@@ -26,8 +26,10 @@ class BaseAction:
     def __init__(self):
         self.scene = Scene()
         self.smart = Smart()
+        self.task = ""
 
     def set_task(self, task):
+        self.task = task
         self.scene.task = task
 
     def try_return_main_ui(self, timeout):
@@ -211,10 +213,16 @@ class DungeonTaskAction(BaseAction):
                 pyautogui.press("f")
                 sleep(1)
                 return True
-            pyautogui.keyDown("s")
-            sleep(0.05)
-            pyautogui.keyUp("s")
-            sleep(0.5)
+            if self.task == "角":
+                pyautogui.keyDown("s")
+                sleep(0.05)
+                pyautogui.keyUp("s")
+                sleep(0.5)
+            elif self.task == "无冠者":
+                pyautogui.keyDown("w")
+                sleep(0.1)
+                pyautogui.keyUp("w")
+                sleep(0.5)
 
     def enter_dungeon(self):
         position = self.scene.get_proper_dungeon_level_position()

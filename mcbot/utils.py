@@ -137,7 +137,15 @@ def screenshot():
 
 
 def test():
-    pass
+    init_game_window()
+    sleep(3)
+    while True:
+        img_path = Path(r"D:\Pictures\鸣潮\无冠者") / datetime.now().strftime("%Y%m%d-%H%M%S-%f.png")
+        img_path.parent.mkdir(parents=True, exist_ok=True)
+        print(img_path)
+        im = ImageGrab.grab()
+        im.save(img_path)
+        sleep(1)
 
 
 if __name__ == '__main__':
